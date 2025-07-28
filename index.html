@@ -1,14 +1,102 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Simple Real Estate</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>East Africa Real Estate Finder</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h1>🏡 Real Estate Listings</h1>
-  <div id="properties"></div>
+    <div class="container">
+        <div class="header">
+            <h1> Real Estate Finder</h1>
+            <p>Discover properties with real market data integration</p>
+        </div>
 
-  <script src="script.js"></script>
+        <div class="controls">
+            <div class="control-row">
+                <div class="control-group">
+                    <label for="searchLocation">Search Location</label>
+                    <input type="text" id="searchLocation" placeholder="e.g., New York, NY" value="New York, NY">
+                </div>
+                <div class="control-group">
+                    <label for="propertyType">Property Type</label>
+                    <select id="propertyType">
+                        <option value="">All Types</option>
+                        <option value="house">House</option>
+                        <option value="apartment">Apartment</option>
+                        <option value="condo">Condo</option>
+                        <option value="townhouse">Townhouse</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="minPrice">Min Price (USD)</label>
+                    <input type="number" id="minPrice" placeholder="e.g., 100000" min="0">
+                </div>
+                <div class="control-group">
+                    <label for="maxPrice">Max Price (USD)</label>
+                    <input type="number" id="maxPrice" placeholder="e.g., 1000000" min="0">
+                </div>
+            </div>
+            <div class="control-row">
+                <div class="control-group">
+                    <label for="bedrooms">Bedrooms</label>
+                    <select id="bedrooms">
+                        <option value="">Any</option>
+                        <option value="1">1+</option>
+                        <option value="2">2+</option>
+                        <option value="3">3+</option>
+                        <option value="4">4+</option>
+                        <option value="5">5+</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="bathrooms">Bathrooms</label>
+                    <select id="bathrooms">
+                        <option value="">Any</option>
+                        <option value="1">1+</option>
+                        <option value="2">2+</option>
+                        <option value="3">3+</option>
+                        <option value="4">4+</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="sortBy">Sort By</label>
+                    <select id="sortBy">
+                        <option value="newest">Newest First</option>
+                        <option value="price_asc">Price: Low to High</option>
+                        <option value="price_desc">Price: High to Low</option>
+                        <option value="sqft_desc">Size: Largest First</option>
+                    </select>
+                </div>
+                <div class="control-group" style="display: flex; align-items: end;">
+                    <button class="search-btn" onclick="searchProperties()" id="searchBtn">
+                        Search Properties
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="results" id="results">
+            <div class="welcome-message">
+                <h3>🔍 Ready to Search</h3>
+                <p>Enter a location and click "Search Properties" to find real estate listings</p>
+                <div class="api-note">
+                    <small>Powered by real estate market data via RapidAPI</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Modal -->
+    <div class="loading-modal" id="loadingModal" style="display: none;">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <p>Searching properties...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
 
