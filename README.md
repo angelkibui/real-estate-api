@@ -1,99 +1,125 @@
-# real-estate-api
-# E Real Estate Finder
+# Commercial Real Estate Search Application
 
-A modern web application that helps users search and discover real estate properties using real market data from the Zillow API via RapidAPI.
+A modern, responsive web application for searching commercial real estate properties using the LoopNet API. This application provides users with an intuitive interface to search, filter, and sort commercial properties for sale.
 
 ##  Features
 
-- **Real-time Property Search**: Search properties by location with live market data
-- **Advanced Filtering**: Filter by property type, price range, bedrooms, and bathrooms
-- **Multiple Sorting Options**: Sort by price, size, or newest listings
-- **Market Statistics**: View average, minimum, and maximum prices for search results
-- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
-- **Error Handling**: Graceful handling of API errors and network issues
-- **Modern UI**: Beautiful gradient design with smooth animations
+- **Advanced Property Search**: Search by location, property type, price range, and square footage
+- **Real-time Filtering**: Filter results by multiple criteria with instant updates
+- **Sorting Options**: Sort properties by price, size, or construction date
+- **Responsive Design**: Fully responsive interface that works on desktop, tablet, and mobile devices
+- **Interactive UI**: Modern glass-morphism design with smooth animations and hover effects
+- **Error Handling**: Graceful error handling with user-friendly messages
 
 ##  Technologies Used
 
-- **Frontend**: HTML5, CSS3, JavaScript 
-- **API**: Zillow Real Estate API via RapidAPI
-- **Styling**:  CSS 
-- **Architecture**: JavaScript 
+- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
+- **API**: LoopNet API via RapidAPI
+- **Styling**: Modern CSS 
 
-##  Prerequisites
+##  Project Structure
 
-- Web browser (Chrome, Firefox, Safari, Edge)
-- Internet connection
-- RapidAPI account with Zillow API access
-- Valid API key from RapidAPI
+real-estate-api/
+├── index.html         
+├── script.js          
+├── style.css           
+├── .gitignore          
+└── README.md           
 
 ##  Installation & Setup
 
 ### Local Development
 
-1. **Clone or download the project files:**
+1. **Clone the repository**:
    ```bash
-   git clone <your-repository-url>
-   cd east-africa-real-estate
+   git clone <repository-url>
+   cd commercial-real-estate-search
    ```
 
-2. **Configure API Key:**
-   - Open `script.js`
-   - Replace the placeholder API key with your actual RapidAPI key:
-   ```javascript
-   const API_CONFIG = {
-       host: 'zillow-com1.p.rapidapi.com',
-       key: '0025178b0msh5fc4ca96d725123p18e20cjsn8683c26792e2', 
-       baseUrl: 'https://zillow-com1.p.rapidapi.com'
-   };
-   ```
-
-3. **Run locally:**
-   - Simply open `index.html` in your web browser
-   - Or use a local server:
+2. **Open the application**:
+   -  open `index.html` in your web browser
+   - Or use a local server for better development experience:
    ```bash
-   # Python 3
+   - Using Python 3
    python -m http.server 8000
    
-   # Node.js (if you have http-server installed)
-   npx http-server
+    - or using Live Server (VS Code extension)
+   Right-click on index.html → "Open with Live Server"
    ```
 
-##  Deployment Instructions
+3. **Access the application**:
+   - Direct file: `file:///path/to/index.html`
+   - Local server: `http://localhost:8000`
 
-### Part 1: Deploy to Web Servers
+### Part Two: Server Deployment & Load Balancing
 
-1. **Prepare your files:**
-   - Ensure all files are in the project directory
-   - Verify API key is configured in `script.js`
-   - Test locally before deployment
+This application has been designed for deployment across multiple web servers with load balancing capability.
 
-2. **Upload to Web01 and Web02:**
+#### Server Setup
+
+**Web Servers (Web01 & Web02)**:
+
+1. **Install Nginx** on both servers:
    ```bash
-   # Example using SCP
-   scp -r * user@web01-server:/var/www/html/
-   scp -r * user@web02-server:/var/www/html/
-   
-   # Or using SFTP
-   sftp user@web01-server
-   put -r * /var/www/html/
+   sudo apt update
+   sudo apt install nginx -y
+   sudo systemctl start nginx
+   sudo systemctl enable nginx
    ```
 
-3. **Set proper permissions:**
+2. **Deploy application files**:
    ```bash
-   chmod 644 *.html *.css *.js *.md
-   chmod 755 /var/www/html/
+   - Create application directory
+   sudo mkdir -p /var/www/real-estate-app
+   
+   - Copy application files
+   sudo cp index.html /var/www/real-estate-app/
+   sudo cp script.js /var/www/real-estate-app/
+   sudo cp style.css /var/www/real-estate-app/
+   
+   - Set proper permissions
+   sudo chown -R www-data:www-data /var/www/real-estate-app
+   sudo chmod -R 755 /var/www/real-estate-app
    ```
 
-### Part 2: Load Balancer Configuration
-
-1. **Configure Load Balancer (Lb01):**
-   
-   **For Nginx Load Balancer:**
+3. **Configure Nginx** on both servers:
    ```nginx
-   upstream backend {
-       server web01-server:80;
-       server web02-server:80;
+    /etc/nginx/sites-available/real-estate-app
+   server {
+       listen 80;
+       server_name web01.yourdomain.com; # Change for each server
+       
+       root /var/www/real-estate-app;
+       index index.html;
+       
+       location / {
+           try_files $uri $uri/ =404;
+       }
+       
+
+4. **Enable the site**:
+   ```bash
+   sudo ln -s /etc/nginx/sites-available/real-estate-app /etc/nginx/sites-enabled/
+   sudo nginx -t
+   sudo systemctl reload nginx
+   ```
+
+#### (Lb01)
+
+1. **Install Nginx** on load balancer:
+   ```bash
+   sudo apt update
+   sudo apt install nginx -y
+   ```
+
+2. **Configure load balancer**:
+   ```nginx
+   # /etc/nginx/nginx.conf
+   
+   upstream real_estate_backend {
+       least_conn;
+       server WEB01_IP:80 weight=1 max_fails=3 fail_timeout=30s;
+       server WEB02_IP:80 weight=1 max_fails=3 fail_timeout=30s;
    }
    
    server {
@@ -101,145 +127,165 @@ A modern web application that helps users search and discover real estate proper
        server_name your-domain.com;
        
        location / {
-           proxy_pass http://backend;
+           proxy_pass http://real_estate_backend;
            proxy_set_header Host $host;
            proxy_set_header X-Real-IP $remote_addr;
            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+           proxy_set_header X-Forwarded-Proto $scheme;
+           
+           # Health check
+           proxy_connect_timeout 5s;
+           proxy_send_timeout 5s;
+           proxy_read_timeout 5s;
+       }
+       
+       # Health check endpoint
+       location /health {
+           access_log off;
+           return 200 "healthy\n";
+           add_header Content-Type text/plain;
        }
    }
    ```
 
-   **For Apache Load Balancer:**
-   ```apache
-   <VirtualHost *:80>
-       ServerName your-domain.com
-       
-       ProxyPreserveHost On
-       ProxyPass / balancer://mycluster/
-       ProxyPassReverse / balancer://mycluster/
-       
-       <Proxy balancer://mycluster>
-           BalancerMember http://web01-server:80
-           BalancerMember http://web02-server:80
-       </Proxy>
-   </VirtualHost>
-   ```
-
-2. **Restart services:**
+3. **Test and reload**:
    ```bash
-   # Nginx
-   sudo systemctl restart nginx
-   
-   # Apache
-   sudo systemctl restart apache2
+   sudo nginx -t
+   sudo systemctl reload nginx
    ```
 
-3. **Test load balancing:**
+#### Load Balancer Testing
+
+1. **Test individual servers**:
    ```bash
-   # Test multiple requests to see different servers responding
-   curl -H "Host: your-domain.com" http://load-balancer-ip/
+   curl -I http://WEB01_IP
+   curl -I http://WEB02_IP
    ```
 
-### Part 3: Verification
+2. **Test load balancer**:
+   ```bash
+   curl -I http://LOAD_BALANCER_IP
+   ```
 
-1. **Test individual servers:**
-   - http://web01-server-ip/
-   - http://web02-server-ip/
+3. **Monitor traffic distribution**:
+   ```bash
+   # Check access logs on both web servers
+   sudo tail -f /var/log/nginx/access.log
+   ```
+   ```
 
-2. **Test load balancer:**
-   - http://load-balancer-ip/
-   - Verify requests are distributed between servers
+##  API Configuration
 
-3. **Test application functionality:**
-   - Search for properties
-   - Test filtering and sorting
-   - Verify API integration works
+### LoopNet API Integration
 
-##  Configuration
+This application uses the LoopNet API through RapidAPI for fetching commercial real estate data.
 
-### Environment Variables (Optional)
-For production deployment, consider using environment variables:
-
-```javascript
-const API_CONFIG = {
-    host: process.env.RAPIDAPI_HOST || 'zillow-com1.p.rapidapi.com',
-    key: process.env.RAPIDAPI_KEY || 'your-api-key',
-    baseUrl: process.env.API_BASE_URL || 'https://zillow-com1.p.rapidapi.com'
-};
-```
-
-### API Rate Limits
-- **Free Tier**: 100 requests/month
-- **Basic Plan**: 1,000 requests/month
-- Monitor usage to avoid rate limiting
+**API Details**:
+- **Provider**: LoopNet via RapidAPI
+- **Endpoint**: `https://loopnet-api.p.rapidapi.com/loopnet/sale/advanceSearch`
+- **Method**: POST
+- **Rate Limits**: Check RapidAPI dashboard for current limits
+.
 
 ##  Usage
 
-1. **Search Properties:**
-   - Enter a location (e.g., "New York, NY")
-   - Set optional filters (price, type, bedrooms)
-   - Click "Search Properties"
+### Search Properties
 
-2. **Filter Results:**
-   - Use dropdown menus to refine results
-   - Filters apply in real-time to current results
+1. **Enter Search Criteria**:
+   - Location (city, state, or zip code)
+   - Property type (Office, Retail, Industrial, etc.)
+   - Price range (minimum and maximum)
+   - Square footage range
 
-3. **Sort Results:**
-   - Sort by price (low to high, high to low)
-   - Sort by size (largest first)
-   - Sort by newest listings
+2. **Submit Search**: Click the "Search Properties" button
 
-4. **View Details:**
-   - Click "View Details" to see full property listing
+3. **View Results**: Browse through the returned properties with detailed information
 
-##  Troubleshooting
+### Filter and Sort
 
-### Common Issues:
+1. **Sort Options**:
+   - Price: High to Low / Low to High
+   - Size: Large to Small / Small to Large
+   - Newest First
 
-1. **API Key Error (401):**
-   - Verify API key is correct in `script.js`
-   - Check RapidAPI subscription status
+2. **Filter Results**: Use the search box to filter current results by keywords
 
-2. **Rate Limit Error (429):**
-   - Wait before making more requests
-   - Consider upgrading API plan
+3. **Pagination**: Navigate through multiple pages of results
 
-3. **No Results:**
-   - Try different location names
-   - Expand search criteria
-   - Check internet connection
+### Property Details
 
-4. **Load Balancer Issues:**
-   - Verify both web servers are running
-   - Check load balancer configuration
-   - Test individual server endpoints
+- Click on any property card to view detailed information
+- Properties display: price, location, size, type, year built, and description
 
-##  API Documentation
+##  Testing
 
-This application uses the **Zillow Real Estate API** via RapidAPI:
+### Manual Testing Checklist
 
-- **Endpoint**: `/propertyExtendedSearch`
-- **Method**: GET
-- **Parameters**:
-  - `location` (required): Search location
-  - `home_type`: Property type filter
-  - `minPrice`: Minimum price filter
-  - `maxPrice`: Maximum price filter
-  - `bedrooms`: Minimum bedrooms
-  - `bathrooms`: Minimum bathrooms
-  - `sort`: Sort parameter
+- [ ] Search functionality with various parameters
+- [ ] Sorting by different criteria
+- [ ] Filtering results with keywords
+- [ ] Pagination navigation
+- [ ] Responsive design on different screen sizes
+- [ ] Error handling when API is unavailable
+- [ ] Load balancer traffic distribution
+- [ ] Server failover functionality
 
-##  Contributing
+### Load Balancer Testing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Test thoroughly
-5. Submit a pull request
+1. **Traffic Distribution**:
+   ```bash
+   # Make multiple requests and check server logs
+   for i in {1..10}; do curl http://your-domain.com; done
+   ```
 
+2. **Health Monitoring**:
+   ```bash
+   # Monitor health check endpoint
+   watch -n 5 'curl -s http://your-domain.com/health'
+   ```
 
+3. **Failover Testing**:
+   - Stop one web server
+   - Verify traffic routes to remaining server
+   - Restart stopped server
+   - Verify traffic resumes load balancing
 
 ##  Credits
 
-- **API Provider**: Zillow via RapidAPI
-- **Design**: Modern gradient-based responsive design
+- **LoopNet API**: Commercial real estate data provider
+- **RapidAPI**: API marketplace and hosting
+
+
+##  Troubleshooting
+
+### Common Issues
+
+1. **API Not Responding**:
+   - Check API key validity
+   - Verify rate limits not exceeded
+   - Application will fallback to mock data
+
+2. **Load Balancer Issues**:
+   - Verify server connectivity
+   - Check Nginx configuration
+   - Review server logs for errors
+
+3. **Styling Issues**:
+   - Clear browser cache
+   - Check CSS file loading
+   - Verify font awesome CDN
+
+### Server Monitoring
+
+```bash
+# Check server status
+sudo systemctl status nginx
+
+# View error logs
+sudo tail -f /var/log/nginx/error.log
+
+# Monitor resource usage
+htop
+```
+
+---

@@ -3,100 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>East Africa Real Estate Finder</title>
+    <title>Commercial Real Estate Search</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="background-gradient"></div>
+    
     <div class="container">
-        <div class="header">
-            <h1> Real Estate Finder</h1>
-            <p>Discover properties with real market data integration</p>
-        </div>
-
-        <div class="controls">
-            <div class="control-row">
-                <div class="control-group">
-                    <label for="searchLocation">Search Location</label>
-                    <input type="text" id="searchLocation" placeholder="e.g., New York, NY" value="New York, NY">
-                </div>
-                <div class="control-group">
-                    <label for="propertyType">Property Type</label>
-                    <select id="propertyType">
-                        <option value="">All Types</option>
-                        <option value="house">House</option>
-                        <option value="apartment">Apartment</option>
-                        <option value="condo">Condo</option>
-                        <option value="townhouse">Townhouse</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label for="minPrice">Min Price (USD)</label>
-                    <input type="number" id="minPrice" placeholder="e.g., 100000" min="0">
-                </div>
-                <div class="control-group">
-                    <label for="maxPrice">Max Price (USD)</label>
-                    <input type="number" id="maxPrice" placeholder="e.g., 1000000" min="0">
-                </div>
+        <header class="header">
+            <div class="header-content">
+                <h1>Commercial Real Estate Search</h1>
+                <p>Find premium commercial properties for sale across the world</p>
             </div>
-            <div class="control-row">
-                <div class="control-group">
-                    <label for="bedrooms">Bedrooms</label>
-                    <select id="bedrooms">
-                        <option value="">Any</option>
-                        <option value="1">1+</option>
-                        <option value="2">2+</option>
-                        <option value="3">3+</option>
-                        <option value="4">4+</option>
-                        <option value="5">5+</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label for="bathrooms">Bathrooms</label>
-                    <select id="bathrooms">
-                        <option value="">Any</option>
-                        <option value="1">1+</option>
-                        <option value="2">2+</option>
-                        <option value="3">3+</option>
-                        <option value="4">4+</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label for="sortBy">Sort By</label>
-                    <select id="sortBy">
-                        <option value="newest">Newest First</option>
-                        <option value="price_asc">Price: Low to High</option>
-                        <option value="price_desc">Price: High to Low</option>
-                        <option value="sqft_desc">Size: Largest First</option>
-                    </select>
-                </div>
-                <div class="control-group" style="display: flex; align-items: end;">
-                    <button class="search-btn" onclick="searchProperties()" id="searchBtn">
-                        Search Properties
-                    </button>
-                </div>
-            </div>
-        </div>
+        </header>
 
-        <div class="results" id="results">
-            <div class="welcome-message">
-                <h3>🔍 Ready to Search</h3>
-                <p>Enter a location and click "Search Properties" to find real estate listings</p>
-                <div class="api-note">
-                    <small>Powered by real estate market data via RapidAPI</small>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Loading Modal -->
-    <div class="loading-modal" id="loadingModal" style="display: none;">
-        <div class="loading-content">
+        <!-- Loading Spinner -->
+        <div id="loading" class="loading" style="display: none;">
             <div class="spinner"></div>
             <p>Searching properties...</p>
         </div>
+
+        <!-- Error Message -->
+        <div id="error-message" class="error-message" style="display: none;">
+            <i class="fas fa-exclamation-triangle"></i>
+            <span id="error-text"></span>
+        </div>
+
+        <div class="search-section">
+            <div class="search-card">
+                <h2>Property Search</h2>
+                <form class="search-form" id="search-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="location">Location</label>
+                            <input type="text" id="location" name="location" placeholder="Enter city, state, or zip code" value="New York, NY" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="property-type">Property Type</label>
+                            <select id="property-type" name="propertyType">
+                                <option value="">All Types</option>
+                                <option value="office">Office</option>
+                                <option value="retail">Retail</option>
+                                <option value="industrial">Industrial</option>
+                                <option value="warehouse">Warehouse</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="min-price">Min Price ($)</label>
+                            <input type="number" id="min-price" name="minPrice" placeholder="0" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="max-price">Max Price ($)</label>
+                            <input type="number" id="max-price" name="maxPrice" placeholder="10,000,000" min="0">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="min-sqft">Min Sq Ft</label>
+                            <input type="number" id="min-sqft" name="minSqft" placeholder="0" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label for="max-sqft">Max Sq Ft</label>
+                            <input type="number" id="max-sqft" name="maxSqft" placeholder="100,000" min="0">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i>
+                        Search Properties
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="filters-card" id="filters" style="display: none;">
+            <h3><i class="fas fa-filter"></i> Filter & Sort Results</h3>
+            <div class="filters-controls">
+                <div class="filter-group">
+                    <label for="sort-by">Sort By:</label>
+                    <select id="sort-by">
+                        <option value="price-desc">Price: High to Low</option>
+                        <option value="price-asc">Price: Low to High</option>
+                        <option value="size-desc">Size: Large to Small</option>
+                        <option value="size-asc">Size: Small to Large</option>
+                        <option value="newest">Newest First</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="search-filter">Search in Results:</label>
+                    <input type="text" id="search-filter" placeholder="Filter current results...">
+                </div>
+            </div>
+        </div>
+
+        <div id="results" style="display: none;">
+            <div class="results-count" id="results-count">Found 0 properties</div>
+            
+            <div class="properties-grid" id="properties-grid">
+                <!-- Properties will be dynamically inserted here -->
+            </div>
+            
+            <!-- Pagination -->
+            <div class="pagination" id="pagination" style="display: none;">
+                <button id="prev-page" class="pagination-btn" disabled>
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span id="page-info">Page 1 of 1</span>
+                <button id="next-page" class="pagination-btn" disabled>
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
     </div>
+
+    <footer class="footer">
+        <p>&copy; 2025 Commercial Real Estate Search | Powered by LoopNet API</p>
+        <p>Data provided by LoopNet - All rights reserved</p>
+    </footer>
 
     <script src="script.js"></script>
 </body>
 </html>
-
